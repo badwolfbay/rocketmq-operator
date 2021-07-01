@@ -403,10 +403,12 @@ func (r *ReconcileBroker) getBrokerStatefulSet(broker *rocketmqv1alpha1.Broker, 
 					Labels: ls,
 				},
 				Spec: corev1.PodSpec{
+					NodeSelector: broker.Spec.NodeSelector,
+					HostNetwork:  broker.Spec.HostNetwork,
 					Containers: []corev1.Container{{
 						Resources: broker.Spec.Resources,
-						Image: broker.Spec.BrokerImage,
-						Name:  cons.BrokerContainerName,
+						Image:     broker.Spec.BrokerImage,
+						Name:      cons.BrokerContainerName,
 						Lifecycle: &corev1.Lifecycle{
 							PostStart: &corev1.Handler{
 								Exec: &corev1.ExecAction{
@@ -415,7 +417,7 @@ func (r *ReconcileBroker) getBrokerStatefulSet(broker *rocketmqv1alpha1.Broker, 
 							},
 						},
 						ImagePullPolicy: broker.Spec.ImagePullPolicy,
-						Env: getENV(broker, replicaIndex, brokerGroupIndex),
+						Env:             getENV(broker, replicaIndex, brokerGroupIndex),
 						Ports: []corev1.ContainerPort{{
 							ContainerPort: cons.BrokerVipContainerPort,
 							Name:          cons.BrokerVipContainerPortName,
@@ -453,7 +455,7 @@ func (r *ReconcileBroker) getBrokerStatefulSet(broker *rocketmqv1alpha1.Broker, 
 
 }
 
-func getENV(broker *rocketmqv1alpha1.Broker, replicaIndex int, brokerGroupIndex int)  []corev1.EnvVar {
+func getENV(broker *rocketmqv1alpha1.Broker, replicaIndex int, brokerGroupIndex int) []corev1.EnvVar {
 	envs := []corev1.EnvVar{{
 		Name:  cons.EnvNameServiceAddress,
 		Value: share.NameServersStr,
